@@ -26,3 +26,6 @@ export { AsyncRouter as Router }
 
 declare function wrap(fn: Function, isParam: boolean): Function
 export { wrap }
+
+declare function alwaysEnsureNext(alwaysEnsureNext: boolean): void
+export { alwaysEnsureNext }

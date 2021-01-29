@@ -8,8 +8,14 @@ module.exports = {
   Router: function asyncRouter() {
     return addAsync(express.Router.apply(express, arguments));
   },
-  wrap
+  wrap,
+  ensureNext
 };
+
+_alwaysEnsureNext = true;
+function alwaysEnsureNext(alwaysEnsureNext) {
+  _alwaysEnsureNext = alwaysEnsureNext;
+}
 
 function addAsync(app) {
   app.routeAsync = function() {
@@ -59,7 +65,7 @@ function wrap(fn, isParam) {
     res = arguments[1 + isErrorHandler];
     try {
       await fn.apply(null, arguments);
-      if (!res.headersSent) next();
+      if (!res.headersSent && _alwaysEnsureNext) next();
     } catch(err) {
       if (!res.headersSent) next(err);
     }

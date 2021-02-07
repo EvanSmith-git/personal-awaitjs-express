@@ -8,14 +8,8 @@ module.exports = {
   Router: function asyncRouter() {
     return addAsync(express.Router.apply(express, arguments));
   },
-  wrap,
-  ensureNext
+  wrap
 };
-
-_alwaysEnsureNext = true;
-function alwaysEnsureNext(alwaysEnsureNext) {
-  _alwaysEnsureNext = alwaysEnsureNext;
-}
 
 function addAsync(app) {
   app.routeAsync = function() {
@@ -59,15 +53,16 @@ function wrapArgs(fns, isParam) {
  */
 
 function wrap(fn, isParam) {
-  const isErrorHandler = !isParam && fn.length == 4;
-  async function wrapped() {
-    next = _once(arguments[2 + isErrorHandler]);
-    res = arguments[1 + isErrorHandler];
+  const isErrorHandler = fn.length == 4 && !isParam;
+
+  let wrapped = async function() {
+    // Ensure next function is only ran once
+    arguments[2 + isErrorHandler] = _once(arguments[2 + isErrorHandler]);
     try {
       await fn.apply(null, arguments);
-      if (!res.headersSent && _alwaysEnsureNext) next();
+      arguments[1 + isErrorHandler].headersSent ? null : arguments[2 + isErrorHandler]();
     } catch(err) {
-      if (!res.headersSent) next(err);
+      arguments[1 + isErrorHandler].headersSent ? null : arguments[2 + isErrorHandler](err);
     }
   };
   

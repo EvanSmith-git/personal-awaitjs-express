@@ -9,7 +9,7 @@ module.exports = {
     return addAsync(express.Router.apply(express, arguments));
   },
   wrap,
-  ensureNext
+  alwaysEnsureNext
 };
 
 _alwaysEnsureNext = true;
